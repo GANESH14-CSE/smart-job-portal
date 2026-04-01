@@ -1,0 +1,64 @@
+{% extends 'base.html' %}{% block title %}SmartJobPortal – AI Job Portal{% endblock %}
+{% block content %}
+<section style="background:linear-gradient(135deg,#1a56db 0%,#0ea5e9 100%);color:#fff;padding:80px 0 60px">
+  <div class="container text-center">
+    <div class="display-1 mb-3">💼</div>
+    <h1 class="fw-800 display-5 mb-3">Find Jobs That Match Your <span style="color:#bfdbfe">True Potential</span></h1>
+    <p class="fs-5 opacity-90 mb-4">ATS scoring · Skill gap analysis · Fake job detection · Success prediction</p>
+    <form action="{% url 'job_list' %}" method="GET" class="d-flex gap-2 justify-content-center flex-wrap">
+      <input type="text" name="q" class="form-control form-control-lg rounded-3" style="max-width:360px" placeholder="Search jobs, skills, companies...">
+      <button class="btn btn-light text-primary fw-700 px-4 rounded-3">Search Jobs</button>
+    </form>
+    <div class="d-flex gap-4 justify-content-center mt-4 flex-wrap">
+      <div class="text-center"><div class="fw-800 fs-3">{{ total_jobs }}+</div><small class="opacity-80">Active Jobs</small></div>
+      <div class="text-center"><div class="fw-800 fs-3">{{ total_users }}+</div><small class="opacity-80">Users</small></div>
+      <div class="text-center"><div class="fw-800 fs-3">AI</div><small class="opacity-80">BERT + spaCy</small></div>
+    </div>
+  </div>
+</section>
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fw-800 text-center mb-5">Powered by <span class="text-primary">Intelligent AI</span></h2>
+    <div class="row g-4">
+      <div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center"><div class="fs-1 mb-3">📊</div><h5 class="fw-700">ATS Score</h5><p class="text-muted small">Real ATS score 0–100 using skill matching, BERT similarity, keyword density.</p></div></div>
+      <div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center"><div class="fs-1 mb-3">🔍</div><h5 class="fw-700">Skill Gap Analysis</h5><p class="text-muted small">Identify missing skills and get curated learning resources to bridge the gap.</p></div></div>
+      <div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center"><div class="fs-1 mb-3">🛡️</div><h5 class="fw-700">Fake Job Detection</h5><p class="text-muted small">AI scans every job for red flags — suspicious emails, unrealistic salaries, missing info.</p></div></div>
+      <div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center"><div class="fs-1 mb-3">📈</div><h5 class="fw-700">Success Prediction</h5><p class="text-muted small">Know your shortlist probability before applying based on your resume strength.</p></div></div>
+      <div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center"><div class="fs-1 mb-3">🤖</div><h5 class="fw-700">BERT Similarity</h5><p class="text-muted small">sentence-transformers understands the deep meaning of your resume vs job description.</p></div></div>
+      <div class="col-md-4"><div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center"><div class="fs-1 mb-3">📄</div><h5 class="fw-700">PDF Parser</h5><p class="text-muted small">Upload any PDF resume. Text and skills extracted automatically using PyMuPDF + spaCy.</p></div></div>
+    </div>
+  </div>
+</section>
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-800 mb-0">Latest Jobs</h2>
+      <a href="{% url 'job_list' %}" class="btn btn-outline-primary rounded-3">View All →</a>
+    </div>
+    <div class="row g-3">
+      {% for job in recent_jobs %}
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'job_detail' job.id %}" class="text-decoration-none">
+          <div class="card border rounded-4 h-100 p-3" style="transition:all .2s" onmouseover="this.style.borderColor='#1a56db';this.style.boxShadow='0 4px 20px rgba(26,86,219,.12)'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+            <div class="fw-700 text-dark">{{ job.title }}</div>
+            <div class="text-muted small">{{ job.company }} · {{ job.location }}</div>
+            <div class="mt-2 d-flex flex-wrap gap-1">{% for s in job.skills_list|slice:":4" %}<span class="badge bg-primary bg-opacity-10 text-primary">{{ s }}</span>{% endfor %}</div>
+            {% if job.salary_max %}<div class="text-success small mt-2 fw-600">₹{{ job.salary_min }}–{{ job.salary_max }} LPA</div>{% endif %}
+            <div class="text-muted mt-1" style="font-size:.75rem"><i class="bi bi-clock me-1"></i>{{ job.posted_at|timesince }} ago</div>
+          </div>
+        </a>
+      </div>
+      {% empty %}<div class="col-12 text-center text-muted py-4">No jobs yet. <a href="{% url 'post_job' %}">Post the first job!</a></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% if not user.is_authenticated %}
+<section class="py-5" style="background:linear-gradient(135deg,#1a56db,#0ea5e9)">
+  <div class="container text-center text-white">
+    <h2 class="fw-800 mb-3">Ready to find your dream job?</h2>
+    <a href="{% url 'register' %}" class="btn btn-light text-primary fw-700 px-5 py-2 rounded-pill">Get Started Free →</a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

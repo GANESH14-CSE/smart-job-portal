@@ -1,0 +1,77 @@
+{% extends 'base.html' %}{% block title %}Dashboard – SmartJobPortal{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div><h2 class="fw-800 mb-0">Welcome, {{ user.first_name|default:user.username }}! 👋</h2><p class="text-muted mb-0">Your AI-powered job search overview</p></div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'upload_resume' %}" class="btn btn-outline-primary rounded-3"><i class="bi bi-upload me-1"></i>Update Resume</a>
+      <a href="{% url 'job_list' %}" class="btn btn-primary rounded-3"><i class="bi bi-search me-1"></i>Browse Jobs</a>
+    </div>
+  </div>
+  {% if not profile.resume %}
+  <div class="alert alert-warning d-flex gap-3 align-items-center mb-4"><i class="bi bi-exclamation-triangle-fill fs-3"></i><div><strong>Upload your resume to get started!</strong></div><a href="{% url 'upload_resume' %}" class="btn btn-warning ms-auto btn-sm fw-600">Upload Now</a></div>
+  {% endif %}
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3"><div class="card border-0 text-white rounded-4 p-3" style="background:linear-gradient(135deg,#1a56db,#3b82f6)"><div style="font-size:2rem;font-weight:800">{{ total_applied }}</div><div class="small opacity-85">Applications</div></div></div>
+    <div class="col-6 col-md-3"><div class="card border-0 text-white rounded-4 p-3" style="background:linear-gradient(135deg,#059669,#10b981)"><div style="font-size:2rem;font-weight:800">{{ avg_ats|default:"–" }}</div><div class="small opacity-85">Avg ATS Score</div></div></div>
+    <div class="col-6 col-md-3"><div class="card border-0 text-white rounded-4 p-3" style="background:linear-gradient(135deg,#7c3aed,#a855f7)"><div style="font-size:2rem;font-weight:800">{% if profile.skills %}{{ profile.skills.split|length }}{% else %}0{% endif %}</div><div class="small opacity-85">Skills Detected</div></div></div>
+    <div class="col-6 col-md-3"><div class="card border-0 text-white rounded-4 p-3" style="background:linear-gradient(135deg,#d97706,#f59e0b)"><div style="font-size:2rem;font-weight:800">{% if best_match %}{{ best_match.ats_score|floatformat:0 }}{% else %}–{% endif %}</div><div class="small opacity-85">Best ATS Score</div></div></div>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-700 mb-4">📋 My Applications</h5>
+        {% for app in applications %}
+        <div class="border rounded-3 p-3 mb-3">
+          <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+            <div><div class="fw-700">{{ app.job.title }}</div><div class="text-muted small">{{ app.job.company }} · {{ app.job.location }}</div></div>
+            <div class="d-flex gap-2 align-items-start flex-wrap">
+              <span class="badge {% if app.status == 'shortlisted' %}bg-success{% elif app.status == 'rejected' %}bg-danger{% elif app.status == 'hired' %}bg-primary{% else %}bg-secondary{% endif %}">{{ app.get_status_display }}</span>
+              {% if app.analysis %}<a href="{% url 'analysis_result' app.id %}" class="btn btn-sm btn-outline-primary py-0 rounded-3">Analysis →</a>{% endif %}
+            </div>
+          </div>
+          {% if app.analysis %}
+          <div class="row g-2 small">
+            <div class="col-4"><div class="d-flex justify-content-between mb-1"><span class="text-muted">ATS</span><strong>{{ app.analysis.ats_score|floatformat:0 }}</strong></div><div class="progress" style="height:5px"><div class="progress-bar {% if app.analysis.ats_score >= 70 %}bg-success{% elif app.analysis.ats_score >= 50 %}bg-warning{% else %}bg-danger{% endif %}" style="width:{{ app.analysis.ats_score }}%"></div></div></div>
+            <div class="col-4"><div class="d-flex justify-content-between mb-1"><span class="text-muted">Match</span><strong>{{ app.analysis.match_percentage|floatformat:0 }}%</strong></div><div class="progress" style="height:5px"><div class="progress-bar bg-primary" style="width:{{ app.analysis.match_percentage }}%"></div></div></div>
+            <div class="col-4"><div class="d-flex justify-content-between mb-1"><span class="text-muted">Success</span><strong>{{ app.analysis.success_probability|floatformat:0 }}%</strong></div><div class="progress" style="height:5px"><div class="progress-bar bg-success" style="width:{{ app.analysis.success_probability }}%"></div></div></div>
+          </div>
+          {% endif %}
+          <div class="text-muted small mt-1"><i class="bi bi-calendar3 me-1"></i>{{ app.applied_at|date:"M d, Y" }}</div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5"><div class="display-3 text-muted opacity-25 mb-3">💼</div><h5 class="text-muted">No applications yet</h5><a href="{% url 'job_list' %}" class="btn btn-primary rounded-3 mt-2">Browse Jobs</a></div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="fw-700 mb-3">👤 Profile</h5>
+        <div class="d-flex gap-3 align-items-center mb-3">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-800 fs-4 flex-shrink-0" style="width:52px;height:52px">{{ user.first_name.0|default:user.username.0|upper }}</div>
+          <div><div class="fw-700">{{ user.get_full_name|default:user.username }}</div><div class="text-muted small">{{ user.email }}</div></div>
+        </div>
+        {% if profile.resume %}<div class="alert alert-success py-2 small mb-2">✓ Resume uploaded</div>{% endif %}
+        <div class="d-grid gap-2">
+          <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-sm rounded-3">Edit Profile</a>
+          <a href="{% url 'upload_resume' %}" class="btn btn-outline-secondary btn-sm rounded-3">Update Resume</a>
+        </div>
+      </div>
+      {% if suggested_jobs %}
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-700 mb-3">⭐ Suggested Jobs</h5>
+        {% for job in suggested_jobs %}
+        <a href="{% url 'job_detail' job.id %}" class="text-decoration-none">
+          <div class="border rounded-3 p-2 mb-2" style="transition:all .2s" onmouseover="this.style.borderColor='#1a56db'" onmouseout="this.style.borderColor=''">
+            <div class="fw-600 small text-dark">{{ job.title }}</div>
+            <div class="text-muted" style="font-size:.78rem">{{ job.company }} · {{ job.location }}</div>
+          </div>
+        </a>
+        {% endfor %}
+        <a href="{% url 'job_list' %}" class="btn btn-outline-primary w-100 btn-sm rounded-3 mt-2">View All Jobs</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

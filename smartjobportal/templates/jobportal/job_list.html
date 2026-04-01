@@ -1,0 +1,48 @@
+{% extends 'base.html' %}{% block title %}Browse Jobs – SmartJobPortal{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <form method="GET" class="row g-2 align-items-end">
+      <div class="col-md-5"><label class="form-label fw-600 small">Job / Skills / Company</label><input type="text" name="q" class="form-control" value="{{ query }}" placeholder="e.g. Python Developer..."></div>
+      <div class="col-md-3"><label class="form-label fw-600 small">Location</label><input type="text" name="location" class="form-control" value="{{ location }}" placeholder="City or Remote"></div>
+      <div class="col-md-2"><label class="form-label fw-600 small">Type</label>
+        <select name="type" class="form-select"><option value="">All Types</option>
+          <option value="full_time" {% if job_type == 'full_time' %}selected{% endif %}>Full Time</option>
+          <option value="part_time" {% if job_type == 'part_time' %}selected{% endif %}>Part Time</option>
+          <option value="internship" {% if job_type == 'internship' %}selected{% endif %}>Internship</option>
+          <option value="remote" {% if job_type == 'remote' %}selected{% endif %}>Remote</option>
+          <option value="contract" {% if job_type == 'contract' %}selected{% endif %}>Contract</option>
+        </select></div>
+      <div class="col-md-2"><button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Search</button></div>
+    </form>
+  </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-700 mb-0"><span class="text-primary">{{ total }}</span> job{{ total|pluralize }} found</h5>
+    {% if user.is_staff %}<a href="{% url 'post_job' %}" class="btn btn-outline-primary btn-sm rounded-3">+ Post Job</a>{% endif %}
+  </div>
+  {% for job in jobs %}
+  <a href="{% url 'job_detail' job.id %}" class="text-decoration-none">
+    <div class="card border rounded-4 p-3 mb-3 {% if job.id in applied_job_ids %}border-success bg-success bg-opacity-10{% endif %}" style="transition:all .2s" onmouseover="this.style.borderColor='#1a56db'" onmouseout="this.style.borderColor=''">
+      <div class="d-flex justify-content-between flex-wrap gap-2">
+        <div><h5 class="fw-700 text-dark mb-0">{{ job.title }}</h5><span class="text-muted">{{ job.company }} · {{ job.location }}</span></div>
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+          {% if job.id in applied_job_ids %}<span class="badge bg-success px-3 py-2">✓ Applied</span>{% endif %}
+          {% if job.fake_probability >= 60 %}<span class="badge bg-danger">⚠ High Risk</span>
+          {% elif job.fake_probability >= 30 %}<span class="badge bg-warning text-dark">⚠ Verify</span>
+          {% else %}<span class="badge bg-success">✓ Verified</span>{% endif %}
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <span class="badge bg-light text-dark border">{{ job.get_employment_type_display }}</span>
+        <span class="badge bg-light text-dark border">{{ job.experience_required }}</span>
+        {% if job.salary_max %}<span class="badge bg-success bg-opacity-15 text-success border">₹{{ job.salary_min }}–{{ job.salary_max }} LPA</span>{% endif %}
+      </div>
+      <div class="mt-2">{% for s in job.skills_list|slice:":5" %}<span class="badge bg-primary bg-opacity-10 text-primary me-1">{{ s }}</span>{% endfor %}</div>
+      <div class="text-muted mt-1" style="font-size:.78rem"><i class="bi bi-clock me-1"></i>{{ job.posted_at|timesince }} ago</div>
+    </div>
+  </a>
+  {% empty %}
+  <div class="text-center py-5"><div class="display-3 text-muted opacity-25 mb-3">🔍</div><h4 class="text-muted">No jobs found</h4><a href="{% url 'job_list' %}" class="btn btn-outline-primary rounded-3 mt-2">Clear Filters</a></div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}{% block title %}Apply – {{ job.title }}{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="row justify-content-center"><div class="col-md-7">
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
+    <div class="d-flex gap-3 align-items-center">
+      <div class="rounded-3 bg-primary bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0 fw-800 fs-4" style="width:56px;height:56px;color:#1a56db">{{ job.company.0|upper }}</div>
+      <div><h4 class="fw-700 mb-0">{{ job.title }}</h4><span class="text-muted">{{ job.company }} · {{ job.location }}</span></div>
+    </div>
+  </div>
+  {% if profile.resume %}
+  <div class="alert alert-success d-flex gap-3 align-items-start mb-3"><i class="bi bi-file-earmark-check-fill fs-4 mt-1"></i><div><strong>Resume Ready:</strong> {{ profile.resume.name|slice:"8:" }}<br><small class="text-muted">This resume will be used for AI analysis.</small></div></div>
+  {% else %}
+  <div class="alert alert-danger mb-3"><i class="bi bi-exclamation-triangle me-2"></i>No resume uploaded. <a href="{% url 'upload_resume' %}">Upload your resume first.</a></div>
+  {% endif %}
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-3" style="background:#eff6ff">
+    <h6 class="fw-700 text-primary mb-2">🤖 AI Analysis you'll receive after applying:</h6>
+    <div class="row g-1 small">
+      <div class="col-6">✅ ATS Score (0–100)</div><div class="col-6">✅ Skill Match %</div>
+      <div class="col-6">✅ Missing Skills</div><div class="col-6">✅ Success Prediction</div>
+      <div class="col-6">✅ Fake Job Risk</div><div class="col-6">✅ Learning Resources</div>
+    </div>
+  </div>
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <h5 class="fw-700 mb-4"><i class="bi bi-send text-primary me-2"></i>Submit Application</h5>
+    <form method="POST" id="applyForm">{% csrf_token %}
+      <div class="mb-4"><label class="form-label fw-600">Cover Letter <span class="text-muted fw-normal">(optional)</span></label>
+      <textarea name="cover_letter" class="form-control" rows="4" placeholder="Briefly describe why you're a great fit..."></textarea></div>
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-600 rounded-3" id="submitBtn" {% if not profile.resume %}disabled{% endif %}>
+        <i class="bi bi-magic me-2"></i>Apply & Run AI Analysis
+      </button>
+    </form>
+  </div>
+</div></div></div>
+{% block extra_js %}
+<script>
+document.getElementById('applyForm').addEventListener('submit',function(){
+  const b=document.getElementById('submitBtn');
+  b.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Analysing with AI...';
+  b.disabled=true;
+});
+</script>
+{% endblock %}
+{% endblock %}

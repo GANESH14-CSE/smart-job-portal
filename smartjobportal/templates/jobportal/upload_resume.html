@@ -1,0 +1,33 @@
+{% extends 'base.html' %}{% block title %}Upload Resume – SmartJobPortal{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="row justify-content-center"><div class="col-md-7">
+  <div class="text-center mb-4"><div class="display-4 mb-2">📄</div><h2 class="fw-800">Upload Your Resume</h2><p class="text-muted">PDF only · Max 5 MB · Skills extracted automatically</p></div>
+  {% if profile.resume %}
+  <div class="alert alert-info d-flex gap-3 align-items-start mb-4"><i class="bi bi-file-earmark-pdf-fill fs-3 text-primary"></i><div><strong>Current Resume:</strong> {{ profile.resume.name|slice:"8:" }}<br><small class="text-muted">Uploading a new file will replace this.</small></div></div>
+  {% endif %}
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <form method="POST" enctype="multipart/form-data" id="resumeForm">{% csrf_token %}
+      <div class="border rounded-4 p-5 text-center mb-4" style="border:2px dashed #cbd5e1!important;cursor:pointer" id="dropZone" onclick="document.getElementById('resumeFile').click()">
+        <i class="bi bi-cloud-upload fs-1 text-primary d-block mb-2"></i>
+        <h5 class="fw-600">Drag & Drop your PDF here</h5>
+        <p class="text-muted small mb-0">or click to browse</p>
+        <input type="file" name="resume" id="resumeFile" accept=".pdf" style="display:none" onchange="showFile(this)">
+      </div>
+      <div id="fileName" class="alert alert-success d-none mb-3"><i class="bi bi-file-earmark-check me-2"></i><span id="fName"></span></div>
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-600 rounded-3" id="uploadBtn"><i class="bi bi-upload me-2"></i>Upload & Extract Skills</button>
+    </form>
+  </div>
+  {% if profile.skills %}
+  <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
+    <h5 class="fw-700 mb-3">⚡ Skills Found in Your Resume</h5>
+    {% for s in profile.skills.split %}<span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 me-1 mb-1 px-3 py-2">{{ s|cut:"," }}</span>{% endfor %}
+  </div>
+  {% endif %}
+</div></div></div>
+{% block extra_js %}
+<script>
+function showFile(i){if(i.files&&i.files[0]){document.getElementById('fName').textContent=i.files[0].name;document.getElementById('fileName').classList.remove('d-none');document.getElementById('dropZone').style.borderColor='#1a56db';}}
+document.getElementById('resumeForm').addEventListener('submit',function(){const b=document.getElementById('uploadBtn');b.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Parsing...';b.disabled=true;});
+</script>
+{% endblock %}
+{% endblock %}

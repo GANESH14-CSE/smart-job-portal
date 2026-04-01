@@ -1,0 +1,29 @@
+{% extends 'base.html' %}{% block title %}Post a Job – SmartJobPortal{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-8">
+  <div class="text-center mb-4"><h2 class="fw-800">Post a New Job</h2><p class="text-muted">AI fake detection runs automatically on every post.</p></div>
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <form method="POST">{% csrf_token %}
+      <div class="row g-3">
+        <div class="col-12"><h6 class="fw-700 text-primary border-bottom pb-2">Job Details</h6></div>
+        <div class="col-md-8"><label class="form-label fw-600">Job Title *</label>{{ form.title }}</div>
+        <div class="col-md-4"><label class="form-label fw-600">Type</label>{{ form.employment_type }}</div>
+        <div class="col-md-6"><label class="form-label fw-600">Company *</label>{{ form.company }}</div>
+        <div class="col-md-6"><label class="form-label fw-600">Location *</label>{{ form.location }}</div>
+        <div class="col-md-6"><label class="form-label fw-600">Company Email *</label>{{ form.company_email }}<div class="form-text text-danger small">⚠ Use corporate email, not Gmail/Yahoo</div></div>
+        <div class="col-md-6"><label class="form-label fw-600">Company Website</label>{{ form.company_website }}</div>
+        <div class="col-12"><h6 class="fw-700 text-primary border-bottom pb-2 mt-2">Description</h6></div>
+        <div class="col-12"><label class="form-label fw-600">Job Description *</label>{{ form.description }}</div>
+        <div class="col-12"><label class="form-label fw-600">Requirements</label>{{ form.requirements }}</div>
+        <div class="col-12"><label class="form-label fw-600">Skills Required <span class="text-muted fw-normal">(comma-separated)</span></label>{{ form.skills_required }}</div>
+        <div class="col-12"><h6 class="fw-700 text-primary border-bottom pb-2 mt-2">Compensation</h6></div>
+        <div class="col-md-4"><label class="form-label fw-600">Min Salary (LPA)</label>{{ form.salary_min }}</div>
+        <div class="col-md-4"><label class="form-label fw-600">Max Salary (LPA)</label>{{ form.salary_max }}</div>
+        <div class="col-md-4"><label class="form-label fw-600">Experience</label>{{ form.experience_required }}</div>
+        <div class="col-md-4"><label class="form-label fw-600">Deadline</label>{{ form.deadline }}</div>
+        <div class="col-12 mt-2"><button type="submit" class="btn btn-primary px-5 py-2 rounded-3"><i class="bi bi-send me-2"></i>Post Job</button></div>
+      </div>
+    </form>
+  </div>
+</div></div></div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}{% block title %}AI Analysis – {{ job.title }}{% endblock %}
+{% block extra_css %}
+<style>
+.score-ring{text-align:center;padding:20px;border-radius:16px;border:4px solid}
+.score-ring.high{border-color:#16a34a;color:#16a34a}.score-ring.medium{border-color:#d97706;color:#d97706}.score-ring.low{border-color:#dc2626;color:#dc2626}
+.skill-pill{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;margin:3px}
+.skill-pill.matched{background:#f0fdf4;color:#16a34a}.skill-pill.missing{background:#fef2f2;color:#dc2626}
+.progress{height:12px;border-radius:10px}.progress-bar{border-radius:10px;transition:width 1.2s ease}
+</style>
+{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg,#1a56db,#0ea5e9);color:#fff;padding:40px 0">
+  <div class="container d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div><div class="small opacity-75 mb-1">🤖 AI Analysis Complete</div><h2 class="fw-800 mb-0">{{ job.title }}</h2><p class="opacity-85 mb-0">{{ job.company }} · {{ job.location }}</p></div>
+    <div class="d-flex gap-3">
+      <div class="text-center px-4 py-2 rounded-3" style="background:rgba(255,255,255,.15)"><div class="fw-800 fs-3">{{ ats_grade }}</div><div style="font-size:.75rem;opacity:.85">Grade</div></div>
+      <div class="text-center px-4 py-2 rounded-3" style="background:rgba(255,255,255,.15)"><div class="fw-800 fs-3">{{ analysis.ats_score|floatformat:0 }}</div><div style="font-size:.75rem;opacity:.85">ATS Score</div></div>
+    </div>
+  </div>
+</div>
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- ATS Breakdown -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="fw-700 mb-4">📊 ATS Score Breakdown</h5>
+        <div class="row g-3 mb-4">
+          <div class="col-4"><div class="score-ring {% if analysis.ats_score >= 70 %}high{% elif analysis.ats_score >= 50 %}medium{% else %}low{% endif %}"><div style="font-size:2.4rem;font-weight:800">{{ analysis.ats_score|floatformat:0 }}</div><div class="small">ATS Score</div><span class="badge {% if analysis.ats_score >= 70 %}bg-success{% elif analysis.ats_score >= 50 %}bg-warning{% else %}bg-danger{% endif %} mt-1">{{ ats_grade }}</span></div></div>
+          <div class="col-4"><div class="score-ring {% if analysis.match_percentage >= 60 %}high{% elif analysis.match_percentage >= 40 %}medium{% else %}low{% endif %}"><div style="font-size:2.4rem;font-weight:800">{{ analysis.match_percentage|floatformat:0 }}%</div><div class="small">Skill Match</div></div></div>
+          <div class="col-4"><div class="score-ring" style="border-color:#1a56db;color:#1a56db"><div style="font-size:2.4rem;font-weight:800">{{ missing_skills|length }}</div><div class="small">Missing</div></div></div>
+        </div>
+        <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span class="text-muted fw-600">Skill Match (50%)</span><strong>{{ analysis.skill_match_score|floatformat:0 }}%</strong></div><div class="progress"><div class="progress-bar bg-primary" style="width:{{ analysis.skill_match_score }}%"></div></div></div>
+        <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span class="text-muted fw-600">BERT Similarity (30%)</span><strong>{{ analysis.semantic_similarity|floatformat:0 }}%</strong></div><div class="progress"><div class="progress-bar bg-info" style="width:{{ analysis.semantic_similarity }}%"></div></div></div>
+        <div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span class="text-muted fw-600">Keyword Density (20%)</span><strong>{{ analysis.keyword_density|floatformat:0 }}%</strong></div><div class="progress"><div class="progress-bar bg-success" style="width:{{ analysis.keyword_density }}%"></div></div></div>
+        <div class="alert alert-light border small mb-0"><strong>Formula:</strong> ATS = (0.5 × Skill Match) + (0.3 × BERT Similarity) + (0.2 × Keyword Density)</div>
+      </div>
+      <!-- Skills -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="fw-700 mb-3">⚡ Skills Analysis</h5>
+        <div class="row g-3">
+          <div class="col-md-6"><div class="p-3 rounded-3" style="background:#f0fdf4;border:1px solid #bbf7d0"><h6 class="fw-700 text-success mb-2">✅ Matched ({{ matched_skills|length }})</h6>{% for s in matched_skills %}<span class="skill-pill matched">{{ s }}</span>{% empty %}<span class="text-muted small">None matched</span>{% endfor %}</div></div>
+          <div class="col-md-6"><div class="p-3 rounded-3" style="background:#fef2f2;border:1px solid #fecaca"><h6 class="fw-700 text-danger mb-2">❌ Missing ({{ missing_skills|length }})</h6>{% for s in missing_skills %}<span class="skill-pill missing">{{ s }}</span>{% empty %}<span class="text-success small fw-600">🎉 No missing skills!</span>{% endfor %}</div></div>
+        </div>
+      </div>
+      <!-- Suggestions -->
+      {% if suggestions %}<div class="card border-0 shadow-sm rounded-4 p-4 mb-4"><h5 class="fw-700 mb-3">💡 AI Suggestions</h5>{% for tip in suggestions %}<div class="d-flex gap-3 mb-2 align-items-start"><span>💡</span><p class="mb-0 small" style="line-height:1.7">{{ tip }}</p></div>{% endfor %}</div>{% endif %}
+      <!-- Resources -->
+      {% if resources %}<div class="card border-0 shadow-sm rounded-4 p-4"><h5 class="fw-700 mb-3">📚 Learning Resources</h5><div class="row g-2">{% for r in resources %}<div class="col-md-6"><a href="{{ r.url }}" target="_blank" class="text-decoration-none"><div class="card border rounded-3 p-3 d-flex flex-row gap-2 align-items-center" style="transition:all .2s" onmouseover="this.style.borderColor='#1a56db'" onmouseout="this.style.borderColor=''"><span class="text-primary">▶</span><div><div class="fw-600 small">{{ r.label }}</div><div class="text-muted" style="font-size:.72rem">Click to learn →</div></div></div></a></div>{% endfor %}</div></div>{% endif %}
+    </div>
+    <div class="col-lg-4">
+      <!-- Success -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
+        <h5 class="fw-700 mb-3">📈 Success Prediction</h5>
+        <div class="text-center mb-3"><div style="font-size:3rem;font-weight:800" class="text-{{ success_color }}">{{ analysis.success_probability|floatformat:0 }}%</div><div class="text-muted small">shortlist chance</div><span class="badge bg-{{ success_color }} px-3 py-2 mt-1 fs-6">{{ analysis.success_level }} Probability</span></div>
+        <div class="progress mb-3"><div class="progress-bar bg-{{ success_color }}" style="width:{{ analysis.success_probability }}%"></div></div>
+        <p class="text-muted small mb-0">{{ analysis.success_explanation }}</p>
+      </div>
+      <!-- Fake -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
+        <h5 class="fw-700 mb-3">🛡️ Fake Job Risk</h5>
+        <div class="text-center mb-2"><div style="font-size:3rem;font-weight:800" class="{% if analysis.fake_probability >= 60 %}text-danger{% elif analysis.fake_probability >= 30 %}text-warning{% else %}text-success{% endif %}">{{ analysis.fake_probability|floatformat:0 }}%</div><div class="text-muted small">suspicious score</div></div>
+        <div class="progress mb-3"><div class="progress-bar {% if analysis.fake_probability >= 60 %}bg-danger{% elif analysis.fake_probability >= 30 %}bg-warning{% else %}bg-success{% endif %}" style="width:{{ analysis.fake_probability }}%"></div></div>
+        {% if analysis.fake_probability >= 60 %}<div class="alert alert-danger py-2 small mb-2">⚠ High risk! Research carefully.</div>
+        {% elif analysis.fake_probability >= 30 %}<div class="alert alert-warning py-2 small mb-2">⚠ Verify before applying.</div>
+        {% else %}<div class="alert alert-success py-2 small mb-2">✓ Looks legitimate!</div>{% endif %}
+        {% if fake_reasons %}<ul class="small text-muted ps-3 mb-0">{% for r in fake_reasons %}<li>{{ r }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      <!-- Actions -->
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-700 mb-3">🔗 Actions</h5>
+        <div class="d-grid gap-2">
+          <a href="{% url 'dashboard' %}" class="btn btn-primary rounded-3"><i class="bi bi-grid me-2"></i>Go to Dashboard</a>
+          <a href="{% url 'job_list' %}" class="btn btn-outline-primary rounded-3"><i class="bi bi-search me-2"></i>Browse More Jobs</a>
+          <a href="{% url 'upload_resume' %}" class="btn btn-outline-secondary rounded-3"><i class="bi bi-upload me-2"></i>Update Resume</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% block extra_js %}
+<script>document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.progress-bar').forEach(b=>{const w=b.style.width;b.style.width='0';setTimeout(()=>{b.style.width=w;},300);});});</script>
+{% endblock %}
+{% endblock %}

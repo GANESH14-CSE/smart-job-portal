@@ -1,0 +1,21 @@
+{% extends 'base.html' %}{% block title %}About – SmartJobPortal{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg,#1a56db,#0ea5e9);color:#fff;padding:60px 0">
+  <div class="container text-center"><div class="display-3 mb-3">🤖</div><h1 class="fw-800">AI-Powered Smart Job Portal</h1><p class="opacity-90 fs-5">Skill Gap Analysis · ATS Scoring · Fake Job Detection · Success Prediction</p><span class="badge bg-white text-primary px-3 py-2 fs-6">Final Year University Project 2025</span></div>
+</div>
+<div class="container py-5">
+  <div class="row justify-content-center mb-5"><div class="col-lg-8 text-center"><h2 class="fw-800 mb-3">Project Objective</h2><p class="fs-5 text-muted">SmartJobPortal is an <strong>intelligent career assistant</strong> that uses AI to help job seekers understand how well their resume matches any job, what skills they are missing, their shortlist probability, and whether a job posting is genuine.</p></div></div>
+  <h3 class="fw-800 text-center mb-4">Tech Stack</h3>
+  <div class="row g-3 mb-5">{% for item in tech_stack %}<div class="col-6 col-md-3"><div class="card border rounded-4 p-3 d-flex flex-row align-items-center gap-3"><span style="font-size:1.5rem">{{ item.icon }}</span><div><div class="fw-700 small">{{ item.name }}</div><div class="text-muted" style="font-size:.75rem">{{ item.role }}</div></div></div></div>{% endfor %}</div>
+  <div class="row justify-content-center"><div class="col-lg-8"><h3 class="fw-800 text-center mb-4">ATS Score Formula</h3>
+  <div class="card border-0 shadow-sm rounded-4 p-4" style="background:#1e293b;color:#e2e8f0;font-family:monospace">
+    <pre style="margin:0;color:#e2e8f0">ATS = (0.5 × Skill Match%)
+    + (0.3 × BERT Semantic Similarity)
+    + (0.2 × Keyword Density)
+
+ATS ≥ 80  →  High   (70–90% shortlist chance)
+ATS 60–79 →  Medium (40–70% shortlist chance)
+ATS &lt; 60  →  Low    (&lt;40% shortlist chance)</pre>
+  </div></div></div>
+</div>
+{% endblock %}

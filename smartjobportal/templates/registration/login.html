@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% block title %}Login – SmartJobPortal{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="row justify-content-center"><div class="col-md-5 col-lg-4">
+<div class="card border-0 shadow rounded-4 p-4">
+<div class="text-center mb-4"><div class="display-4 mb-2">🔐</div><h2 class="fw-800">Welcome Back</h2><p class="text-muted small">Login to your SmartJobPortal account</p></div>
+<form method="POST" novalidate>{% csrf_token %}
+{% if form.errors %}<div class="alert alert-danger py-2 small">Invalid username or password.</div>{% endif %}
+<div class="mb-3"><label class="form-label fw-600">Username</label><input type="text" name="username" class="form-control form-control-lg" placeholder="Your username" required autofocus></div>
+<div class="mb-4"><label class="form-label fw-600">Password</label><input type="password" name="password" class="form-control form-control-lg" placeholder="Your password" required></div>
+<input type="hidden" name="next" value="{{ next }}">
+<button type="submit" class="btn btn-primary w-100 py-2 fw-600 rounded-3"><i class="bi bi-box-arrow-in-right me-2"></i>Login</button>
+</form>
+<div class="text-center mt-3 small">No account? <a href="{% url 'register' %}" class="fw-600">Register Free</a></div>
+</div></div></div></div>
+{% endblock %}
